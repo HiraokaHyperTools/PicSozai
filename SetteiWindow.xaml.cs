@@ -30,6 +30,11 @@ namespace PicSozai {
 
         private void bSave_Click(object sender, RoutedEventArgs e) {
             Settings.Default.Save();
+
+            if (MessageBox.Show("高速検索用のデータベースを更新?", Title, MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+                UpdateDbWindow win = new UpdateDbWindow();
+                win.Show();
+            }
         }
 
         private void bMS_Click(object sender, RoutedEventArgs e) {

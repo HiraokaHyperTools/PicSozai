@@ -79,6 +79,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="UpdateDbWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Window1.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -90,6 +94,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="EIUt.cs" />
+    <Compile Include="UpdateDbWindow.xaml.cs">
+      <DependentUpon>UpdateDbWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UtSplit.cs" />
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>

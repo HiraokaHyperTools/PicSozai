@@ -18,7 +18,8 @@
             <WrapPanel Orientation="Horizontal" DockPanel.Dock="Top">
                 <Label>検索するテキスト：</Label>
                 <TextBox Name="tbKws" Width="200" KeyDown="tbKws_KeyDown" />
-                <Button Name="bSearch" Click="bSearch_Click" IsDefault="False">検索する</Button>
+                <Button Name="bSearch" Click="bSearch_Click" IsDefault="False">通常検索する(Enter)</Button>
+                <Button Name="bFastSearch" Click="bSearch_Click" IsDefault="False">高速検索(Shift+Enter)</Button>
                 <Button Name="bSettei" Click="bSettei_Click">設定する</Button>
                 <ProgressBar Name="pbWIP" Width="100" IsIndeterminate="True" Visibility="Hidden" />
             </WrapPanel>
