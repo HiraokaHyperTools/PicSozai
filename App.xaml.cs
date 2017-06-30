@@ -16,5 +16,10 @@ namespace PicSozai {
                 return Path.Combine(Environment.ExpandEnvironmentVariables("%APPDATA%\\PicSozai\\db.txt"));
             }
         }
+        public static string picksDir {
+            get {
+                return Path.Combine(Environment.ExpandEnvironmentVariables("%APPDATA%\\PicSozai\\picks"));
+            }
+        }
     }
 }

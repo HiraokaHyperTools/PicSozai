@@ -1,12 +1,14 @@
 ﻿<Window x:Class="PicSozai.Window1"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="画素材" Height="696" Width="726" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Icon="1.ico">
+    Title="画素材" Height="696" Width="755" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Icon="1.ico">
     <Window.Resources>
-        <ContextMenu x:Key="cms1">
+        <ContextMenu x:Key="cms1" FontSize="24">
             <MenuItem Header="ファイルを開く" Name="mOpenfp" Click="mOpenfp_Click" />
             <MenuItem Header="ファイルの場所" Name="mOpendir" Click="mOpendir_Click" />
             <MenuItem Header="パスをコピー" Name="mCopyfp" Click="mCopyfp_Click" />
+            <Separator />
+            <MenuItem Header="picks を開く" Name="mOpenPicks" Click="mOpenPicks_Click" />
             <Separator />
             <MenuItem Header="ExplodeICO" Name="mExplode" Click="mExplode_Click" />
             <Separator />
@@ -15,16 +17,36 @@
     </Window.Resources>
     <Grid>
         <DockPanel LastChildFill="True">
-            <WrapPanel Orientation="Horizontal" DockPanel.Dock="Top">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top">
                 <Label>検索するテキスト：</Label>
                 <TextBox Name="tbKws" Width="200" KeyDown="tbKws_KeyDown" />
-                <Button Name="bSearch" Click="bSearch_Click" IsDefault="False">通常検索する(Enter)</Button>
-                <Button Name="bFastSearch" Click="bSearch_Click" IsDefault="False">高速検索(Shift+Enter)</Button>
-                <Button Name="bSettei" Click="bSettei_Click">設定する</Button>
+                <Button Name="bFastSearch" Click="bSearch_Click" IsDefault="False">高速検索</Button>
                 <ProgressBar Name="pbWIP" Width="100" IsIndeterminate="True" Visibility="Hidden" />
-            </WrapPanel>
-            <Border Height="10" DockPanel.Dock="Top" />
-            <ScrollViewer VerticalScrollBarVisibility="Visible">
+                <TextBlock Width="5" />
+                <Button Name="bSettei" Click="bSettei_Click" Padding="10,0">設定(_S)</Button>
+                <Button Name="bUpdateDb" Click="bUpdateDb_Click" Margin="5,0,0,0" ToolTip="高速検索用のデータベースを更新します">DB 更新(_U)</Button>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom">
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Name="bCheckLic" IsChecked="True" VerticalAlignment="Center">クレジット情報を !Credits から抽出：</CheckBox>
+                    <Button Margin="5,0" Name="bCopyLic" Click="bCopyLic_Click">一覧コピー(_C)</Button>
+                    <Button Margin="5,0" Name="bClearLic" Click="bClearLic_Click">一覧クリアー(_E)</Button>
+                    <CheckBox Margin="5,0" Name="bOpenPick" IsChecked="True" VerticalAlignment="Center">コピーと同時に picks も開く(_A)</CheckBox>
+                    <Button Margin="5,0" Name="bOpenPickNow" Click="bOpenPickNow_Click">picks を開く(_Q)</Button>
+                    <Grid Width="35" Margin="2,0" MouseDown="Grid_MouseDown" Background="White">
+                        <Rectangle Stroke="Green" RadiusX="2" RadiusY="2">
+                        </Rectangle>
+                        <TextBlock Name="lnPicked" HorizontalAlignment="Center" Foreground="Green" VerticalAlignment="Center">0</TextBlock>
+                    </Grid>
+                    <Grid Width="35" Margin="2,0" MouseDown="Grid_MouseDown" Background="White">
+                        <Rectangle Stroke="Red" RadiusX="2" RadiusY="2">
+                        </Rectangle>
+                        <TextBlock Name="lnErrors" HorizontalAlignment="Center" Foreground="Red" VerticalAlignment="Center">0</TextBlock>
+                    </Grid>
+                </StackPanel>
+                <TextBox Height="50" VerticalScrollBarVisibility="Visible" Name="tbLic"></TextBox>
+            </StackPanel>
+            <ScrollViewer Margin="0,10" VerticalScrollBarVisibility="Visible">
                 <WrapPanel Orientation="Horizontal" Name="wpRes"></WrapPanel>
             </ScrollViewer>
         </DockPanel>

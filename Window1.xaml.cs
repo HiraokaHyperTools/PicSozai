@@ -29,22 +29,22 @@ namespace PicSozai {
         }
 
         void bwS_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
-            wpRes.IsEnabled = true;
+            //wpRes.IsEnabled = true;
             pbWIP.Visibility = Visibility.Hidden;
         }
 
         BackgroundWorker bwS = new BackgroundWorker();
 
-        bool fastSearch;
-
         private void bSearch_Click(object sender, RoutedEventArgs e) {
+            if (tbKws.Text.Trim().Length == 0) {
+                return;
+            }
+
             if (bwS.IsBusy) return;
 
             wpRes.Children.Clear();
-            wpRes.IsEnabled = false;
+            //wpRes.IsEnabled = false;
             pbWIP.Visibility = Visibility.Visible;
-
-            fastSearch = object.ReferenceEquals(sender, bFastSearch);
 
             bwS.RunWorkerAsync(tbKws.Text);
         }
@@ -52,55 +52,37 @@ namespace PicSozai {
         void bwS_DoWork(object sender, DoWorkEventArgs e) {
             String kws = Convert.ToString(e.Argument);
 
-            if (fastSearch) {
-                String dir = null;
-                foreach (String row in File.ReadAllLines(App.fpdb)) {
-                    String fp;
-                    if (row.StartsWith("@")) {
-                        dir = row.Substring(1);
-                        continue;
-                    }
-                    else if (row.StartsWith("+")) {
-                        fp = dir + "\\" + row.Substring(1);
-                    }
-                    else {
-                        continue;
-                    }
-                    int lastPeriod = fp.LastIndexOf('.');
-                    if (lastPeriod < 0) {
-                        continue;
-                    }
-                    var fext = fp.Substring(lastPeriod);
-                    if (fext == ".png" || fext == ".gif" || fext == ".ico") {
-                        var fi = new FileInfo(fp);
-                        if (fi.Exists) {
-                            String fn = fi.Name;
-                            if (MUt.Match(fn, kws)) {
-                                PicFound(fi);
-                            }
-                        }
-                    }
+            List<string> hits = new List<string>();
+
+            String dir = null;
+            foreach (String row in File.ReadAllLines(App.fpdb)) {
+                String fp;
+                if (row.StartsWith("@")) {
+                    dir = row.Substring(1);
+                    continue;
+                }
+                else if (row.StartsWith("+")) {
+                    fp = dir + "\\" + row.Substring(1);
+                }
+                else {
+                    continue;
+                }
+                int lastPeriod = fp.LastIndexOf('.');
+                if (lastPeriod < 0) {
+                    continue;
+                }
+                var fext = fp.Substring(lastPeriod);
+                if (fext == ".png" || fext == ".gif" || fext == ".ico") {
+                    hits.Add(fp);
                 }
             }
-            else {
-                List<string> Dirs = new List<string>();
 
-                foreach (String k in Settings.Default.Dirs.Split('\n')) {
-                    if (String.IsNullOrEmpty(k)) continue;
-                    if (Directory.Exists(k)) {
-                        Dirs.AddRange(Directory.GetDirectories(k, "*", SearchOption.AllDirectories));
-                    }
-                }
-
-                foreach (String dir in Dirs) {
-                    foreach (var fi in new DirectoryInfo(dir).GetFiles()) {
-                        String fext = fi.Extension.ToLowerInvariant();
-                        if (fext == ".png" || fext == ".gif" || fext == ".ico") {
-                            String fn = fi.Name;
-                            if (MUt.Match(fn, kws)) {
-                                PicFound(fi);
-                            }
-                        }
+            foreach (var fp in hits) {
+                var fi = new FileInfo(fp);
+                if (fi.Exists) {
+                    String fn = fi.Name;
+                    if (MUt.Match(fn, kws)) {
+                        PicFound(fi);
                     }
                 }
             }
@@ -111,6 +93,7 @@ namespace PicSozai {
             var fp = fi.FullName;
             var src = new BitmapImage(new Uri(fp));
             src.Freeze();
+            var extension = fi.Extension.ToLowerInvariant();
             wpRes.Dispatcher.Invoke((Action)(() => {
                 Image i = new Image();
                 i.Width = (src.PixelWidth);
@@ -145,16 +128,41 @@ namespace PicSozai {
                 b.Child = g;
                 b.BorderBrush = Brushes.Aqua;
                 b.BorderThickness = new Thickness(0.25);
+                if (".ico" == extension) {
+                    b.Background = new SolidColorBrush(Color.FromArgb(10, 0, 255, 255));
+                }
+                else {
+                    b.Background = Brushes.White;
+                }
                 wpRes.Children.Add(b);
-            }), null);
+            }), System.Windows.Threading.DispatcherPriority.Background, null);
         }
 
         Image lasti = null;
 
+        int nPicked = 0;
+        int nErrors = 0;
+
         void i_MouseDown(object sender, MouseButtonEventArgs e) {
             lasti = (Image)sender;
             if (e.ChangedButton == MouseButton.Left) {
-                Process.Start("explorer.exe", " /select,\"" + ((Image)sender).Tag + "\"");
+                CheckLicense("" + ((Image)sender).Tag);
+                try {
+                    Directory.CreateDirectory(App.picksDir);
+                    var fpCopyFrom = ((Image)sender).Tag + "";
+                    var fpCopyTo = Path.Combine(App.picksDir, Path.GetFileName(fpCopyFrom));
+                    File.Copy(fpCopyFrom, fpCopyTo, true);
+                    //lStatus.Text = fpCopyFrom + " をピックしました。";
+                    lnPicked.Text = (++nPicked) + "";
+                    if (bOpenPick.IsChecked ?? false) {
+                        Process.Start("explorer.exe", " /select,\"" + fpCopyTo + "\"");
+                    }
+                }
+                catch (Exception err) {
+                    lnErrors.Text = (++nErrors) + "";
+                    MessageBox.Show("pick できませんでした。\n\n" + err);
+                    //lStatus.Text = "ピック失敗: " + err.Message;
+                }
             }
             else if (e.ChangedButton == MouseButton.Right) {
 
@@ -180,7 +188,7 @@ namespace PicSozai {
         private void tbKws_KeyDown(object sender, KeyEventArgs e) {
             if (e.Key == Key.Enter) {
                 e.Handled = true;
-                bSearch_Click((0 != (Keyboard.Modifiers & ModifierKeys.Shift)) ? bFastSearch : bSearch, e);
+                bSearch_Click(bFastSearch, e);
             }
         }
 
@@ -199,12 +207,30 @@ namespace PicSozai {
 
         private void mCopyfp_Click(object sender, RoutedEventArgs e) {
             try {
+                CheckLicense(lasti.Tag + "");
                 Clipboard.SetText(lasti.Tag + "");
                 MessageBox.Show("パスをコピーした。");
             }
             catch (Exception err) {
                 MessageBox.Show("失敗：" + err.Message);
             }
+        }
+
+        private void CheckLicense(string fp) {
+            if (bCheckLic.IsChecked ?? false) {
+                var dir = Path.GetDirectoryName(fp);
+                while (dir != null && dir.Length > 3) {
+                    var fpCredits = Path.Combine(dir, "!Credits");
+                    if (File.Exists(fpCredits)) {
+                        AddLicense(File.ReadAllText(fpCredits));
+                    }
+                    dir = Path.GetDirectoryName(dir);
+                }
+            }
+        }
+
+        private void AddLicense(string message) {
+            tbLic.Text = String.Join("\n", tbLic.Text.Replace("\r\n", "\n").Split('\n').Concat(new string[] { message }).Where(text => text.Trim().Length != 0).Distinct());
         }
 
         private void mOpendir_Click(object sender, RoutedEventArgs e) {
@@ -251,6 +277,36 @@ namespace PicSozai {
                 Process.Start(dir);
             };
             bw.RunWorkerAsync();
+        }
+
+        private void bUpdateDb_Click(object sender, RoutedEventArgs e) {
+            UpdateDbWindow win = new UpdateDbWindow();
+            win.Show();
+        }
+
+        private void bClearLic_Click(object sender, RoutedEventArgs e) {
+            tbLic.Clear();
+        }
+
+        private void bCopyLic_Click(object sender, RoutedEventArgs e) {
+            tbLic.SelectAll();
+            tbLic.Copy();
+        }
+
+        private void bOpenPickNow_Click(object sender, RoutedEventArgs e) {
+            Directory.CreateDirectory(App.picksDir);
+            Process.Start(App.picksDir);
+        }
+
+        private void mOpenPicks_Click(object sender, RoutedEventArgs e) {
+            bOpenPickNow_Click(sender, e);
+        }
+
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e) {
+            nPicked = 0;
+            lnPicked.Text = "0";
+            nErrors = 0;
+            lnErrors.Text = "0";
         }
     }
 }

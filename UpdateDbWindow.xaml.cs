@@ -30,11 +30,11 @@ namespace PicSozai {
 
         void bwUpdater_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
             if (e.Error == null) {
-                l.Content = "完了。";
+                l.Text = "完了。" + String.Format("{0:#,##0} バイト", bytes);
             }
             else {
                 l.Foreground = Brushes.Red;
-                l.Content = "失敗しました: " + e.Error;
+                l.Text = "失敗しました: " + e.Error;
             }
         }
 
@@ -57,7 +57,11 @@ namespace PicSozai {
             }
 
             File.WriteAllText(App.fpdb, writer.ToString());
+
+            bytes = new FileInfo(App.fpdb).Length;
         }
+
+        Int64 bytes;
 
         BackgroundWorker bwUpdater = new BackgroundWorker();
 

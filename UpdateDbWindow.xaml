@@ -2,8 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Closing="Window_Closing"
-        Title="UpdateDbWindow" Height="180" Width="240">
+        FontSize="24"
+        Title="UpdateDbWindow" Height="149" Width="422">
     <Grid>
-        <Label Name="l">更新しています</Label>
+        <TextBlock Margin="5" TextWrapping="Wrap" Name="l">更新しています。<LineBreak />しばらくそのままでお待ちください。</TextBlock>
     </Grid>
 </Window>

@@ -3,27 +3,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="SetteiWindow" Height="312" Width="531" Loaded="Window_Loaded">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="*" />
-
-        </Grid.ColumnDefinitions>
-        <Label VerticalAlignment="Center" HorizontalAlignment="Right">Dirs</Label>
-        <TextBox Grid.Column="1" Text="{Binding Dirs}"  AcceptsReturn="True" />
-        <WrapPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
-            <Button Padding="5" Name="bSave" Click="bSave_Click">設定を保存する</Button>
-            <Button Padding="5" Name="bNear" Click="bNear_Click">Pics フォルダ準備</Button>
-        </WrapPanel>
-        <WrapPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
-            <Button Padding="5" Background="Honeydew" Foreground="Black" Name="bVS2005" Click="bVS2005_Click">VS2005ImageLibrary フォルダ</Button>
-            <Button Padding="5" Background="Honeydew" Foreground="Black" Name="bMS" Click="bMS_Click">Visual Studio Image Library</Button>
-            <Button Padding="5" Background="Honeydew" Foreground="Black" Click="Button_Click">http://www.flaticon.com/</Button>
-            <Button Padding="5" Background="Honeydew" Foreground="Black" Click="Button_Click" >http://www.iconfinder.com/</Button>
-        </WrapPanel>
+        <StackPanel Margin="10">
+            <Label>検索対象のフォルダー一覧</Label>
+            <TextBox Height="150" Text="{Binding Dirs}"  AcceptsReturn="True" />
+            <Label>コマンド：</Label>
+            <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                <Button Padding="5" Name="bSave" Click="bSave_Click">設定を保存します</Button>
+                <TextBlock Width="5" />
+                <Button Padding="5" Name="bNear" Click="bNear_Click">取り敢えずデフォルトの Pics フォルダを作成 &amp; 追加します</Button>
+            </WrapPanel>
+        </StackPanel>
     </Grid>
 </Window>
